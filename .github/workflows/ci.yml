@@ -192,28 +192,35 @@ jobs:
           python -m quantforge --version | tee /tmp/version.txt
           grep -F "${{ steps.ver.outputs.pep440 }}" /tmp/version.txt
 
+      - name: Write release notes
+        run: |
+          set -euo pipefail
+          cat > release-notes.md <<NOTES
+          Automated release from CI run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+          - **Git tag:** \`${{ steps.ver.outputs.tag_version }}\`
+          - **Python package:** \`${{ steps.ver.outputs.pep440 }}\`
+          - **Base semver:** \`${{ steps.ver.outputs.base }}\`
+          - **Commit:** ${{ github.sha }}
+
+          ### Install
+
+          Download **\`quantforge-*.whl\`** or **\`*.tar.gz\`** from the release assets and install:
+
+          \`\`\`bash
+          pip install quantforge-*.whl
+          \`\`\`
+
+          Bump the base version in [\`VERSION\`](https://github.com/${{ github.repository }}/blob/main/VERSION) when shipping a new semver (e.g. \`0.7.0\`); each green \`main\` build publishes \`VERSION-build.<run>\`.
+          NOTES
+
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
-        with:
-          tag_name: ${{ steps.ver.outputs.tag }}
-          name: QuantForge ${{ steps.ver.outputs.tag_version }}
-          body: |
-            Automated release from CI run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-
-            - **Git tag:** `${{ steps.ver.outputs.tag_version }}`
-            - **Python package:** `${{ steps.ver.outputs.pep440 }}`
-            - **Base semver:** `${{ steps.ver.outputs.base }}`
-            - **Commit:** ${{ github.sha }}
-
-            ### Install
-
-            Download **`quantforge-*.whl`** or **`*.tar.gz`** from the release assets and install:
-
-            ```bash
-            pip install quantforge-*.whl
-            ```
-
-            Bump the base version in [`VERSION`](https://github.com/${{ github.repository }}/blob/main/VERSION) when shipping a new semver (e.g. `0.7.0`); each green `main` build publishes `VERSION-build.<run>`.
-          files: dist/*
-          generate_release_notes: true
-          fail_on_unmatched_files: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.ver.outputs.tag }}"
+          gh release create "${TAG}" dist/*.whl dist/*.tar.gz \
+            --title "QuantForge ${{ steps.ver.outputs.tag_version }}" \
+            --notes-file release-notes.md \
+            --generate-notes
