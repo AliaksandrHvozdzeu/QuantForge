@@ -48,7 +48,9 @@ def write_manifest_entry(
         "profile": config.get("profile"),
         "model_repo": model.get("repo"),
         "gguf_file": gguf_path.name,
-        "gguf_path": str(resolve_under_root(gguf_path, project_root).relative_to(project_root.resolve())),
+        "gguf_path": str(
+            resolve_under_root(gguf_path, project_root).relative_to(project_root.resolve())
+        ),
         "quantize_type": config.get("quantize_type"),
         "size_bytes": gguf_path.stat().st_size,
         "sha256": sha256,
