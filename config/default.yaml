@@ -1,0 +1,57 @@
+# QuantForge default configuration
+# Override via config/profiles/<name>.yaml or config.ps1 (secrets only)
+
+profile: default
+
+paths:
+  models: models
+  metrics: metrics
+  logs: logs
+  src: src
+
+docker:
+  image: llama-quantizer:latest
+  # Pinned in docker/versions.env (LLAMA_CPP_REF=b9193)
+  llama_cpp_ref: b9193
+
+quantize:
+  keep_base: true
+
+validation:
+  min_gguf_size_mb: 4000
+  smoke_test: false
+  smoke_test_tokens: 24
+
+chat:
+  format: chatml
+  system: "You are Qwen, created by Alibaba Cloud. You are a helpful coding assistant."
+
+ollama:
+  model_name: qwen2.5-coder-q5
+  modelfile: ollama/Modelfile
+
+# Web dashboard (quantforge web) — P6
+web:
+  host: 127.0.0.1
+  port: 8787
+
+# OpenAI-compatible API (llama-cpp-python server) — P3
+api:
+  host: 127.0.0.1
+  port: 8000
+  openai_path: /v1
+  model_alias: qwen2.5-coder-q5
+  n_ctx: 8192
+  n_gpu_layers: -1
+  n_threads: 8
+  verbose: false
+  # api_key: "optional-secret"   # set in config.ps1 if needed
+
+# Default model (use profiles/ for other models)
+model:
+  repo: Qwen/Qwen2.5-Coder-7B-Instruct
+  base_dir: qwen2.5-coder-7b-instruct-base
+  gguf_output: Qwen2.5-Coder-7B-Q5_K_M.gguf
+  display_name: Qwen2.5-Coder-7B
+
+quantize_type: Q5_K_M

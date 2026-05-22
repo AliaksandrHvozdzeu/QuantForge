@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QuantForge Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --border: #2d3a4f;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #22c55e;
+      --error: #ef4444;
+      --warn: #f59e0b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    header h1 { margin: 0; font-size: 1.35rem; font-weight: 600; }
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+    }
+    .badge.ok { color: var(--success); border-color: var(--success); }
+    .badge.bad { color: var(--error); border-color: var(--error); }
+    main {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+    .card h2 {
+      margin: 0 0 1rem;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+    label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.35rem; }
+    select, .modes { width: 100%; margin-bottom: 1rem; }
+    select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+    .modes label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .modes input { accent-color: var(--accent); }
+    button {
+      width: 100%;
+      padding: 0.65rem 1rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover:not(:disabled) { background: var(--accent-hover); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .log {
+      background: #0a0e14;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      height: 420px;
+      overflow-y: auto;
+      padding: 0.75rem;
+      font-family: "Cascadia Code", "Consolas", monospace;
+      font-size: 0.8rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .log .line-error { color: var(--error); }
+    .log .line-warn { color: var(--warn); }
+    .log .line-ok { color: var(--success); }
+    .results { margin-top: 1rem; }
+    .results table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .results th, .results td {
+      text-align: left;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .results th { color: var(--muted); font-weight: 500; }
+    a.dl {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0.5rem 1rem;
+      background: var(--success);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    a.dl:hover { filter: brightness(1.1); }
+    .empty { color: var(--muted); font-size: 0.9rem; }
+    .profile-meta { font-size: 0.8rem; color: var(--muted); margin-top: -0.5rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>QuantForge Dashboard</h1>
+    <div>
+      <span id="dockerBadge" class="badge">Docker: …</span>
+      <span id="jobBadge" class="badge">Idle</span>
+    </div>
+  </header>
+
+  <main>
+    <aside>
+      <div class="card">
+        <h2>Pipeline</h2>
+        <label for="profile">Model profile</label>
+        <select id="profile"></select>
+        <p id="profileMeta" class="profile-meta"></p>
+
+        <label>Mode</label>
+        <div class="modes">
+          <label><input type="radio" name="mode" value="full" checked /> Full (download + quantize + test)</label>
+          <label><input type="radio" name="mode" value="quantize" /> Quantize only</label>
+          <label><input type="radio" name="mode" value="benchmark" /> Benchmark only</label>
+          <label><input type="radio" name="mode" value="validate" /> Validate GGUF</label>
+        </div>
+        <button id="startBtn" type="button">Start</button>
+      </div>
+
+      <div class="card results" style="margin-top:1rem">
+        <h2>Artifacts</h2>
+        <div id="artifacts"><p class="empty">Run a job or select a profile.</p></div>
+      </div>
+    </aside>
+
+    <section class="card">
+      <h2>Live log</h2>
+      <div id="log" class="log"></div>
+      <div id="jobResult" class="results"></div>
+    </section>
+  </main>
+
+  <script>
+    const logEl = document.getElementById("log");
+    const startBtn = document.getElementById("startBtn");
+    const profileSel = document.getElementById("profile");
+    const profileMeta = document.getElementById("profileMeta");
+    const artifactsEl = document.getElementById("artifacts");
+    const jobResult = document.getElementById("jobResult");
+    const dockerBadge = document.getElementById("dockerBadge");
+    const jobBadge = document.getElementById("jobBadge");
+
+    let eventSource = null;
+    let profiles = [];
+
+    function formatBytes(n) {
+      if (!n) return "—";
+      const u = ["B", "KB", "MB", "GB"];
+      let i = 0, v = n;
+      while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+      return v.toFixed(2) + " " + u[i];
+    }
+
+    function logLine(text) {
+      const div = document.createElement("div");
+      let cls = "";
+      if (/ERROR|FAILED/i.test(text)) cls = "line-error";
+      else if (/WARNING|WARN/i.test(text)) cls = "line-warn";
+      else if (/SUCCESS|OK|done/i.test(text)) cls = "line-ok";
+      if (cls) div.className = cls;
+      div.textContent = text;
+      logEl.appendChild(div);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function clearLog() {
+      logEl.innerHTML = "";
+      jobResult.innerHTML = "";
+    }
+
+    function selectedMode() {
+      return document.querySelector('input[name="mode"]:checked').value;
+    }
+
+    async function refreshHealth() {
+      const r = await fetch("/api/health");
+      const d = await r.json();
+      dockerBadge.textContent = d.docker ? "Docker: running" : "Docker: stopped";
+      dockerBadge.className = "badge " + (d.docker ? "ok" : "bad");
+    }
+
+    async function loadProfiles() {
+      const r = await fetch("/api/profiles");
+      profiles = await r.json();
+      profileSel.innerHTML = profiles.map(p =>
+        `<option value="${p.id}">${p.display_name} (${p.quantize_type})</option>`
+      ).join("");
+      updateProfileMeta();
+      loadArtifacts();
+    }
+
+    function updateProfileMeta() {
+      const p = profiles.find(x => x.id === profileSel.value);
+      if (!p) return;
+      const exists = p.gguf_exists ? `GGUF on disk: ${formatBytes(p.gguf_size_bytes)}` : "No GGUF yet";
+      profileMeta.textContent = `${p.repo} · ${exists}`;
+    }
+
+    async function loadArtifacts() {
+      const profile = profileSel.value;
+      const r = await fetch(`/api/artifacts?profile=${encodeURIComponent(profile)}`);
+      const d = await r.json();
+      let html = "";
+      if (d.gguf) {
+        html += `<p><strong>${d.gguf.name}</strong> — ${formatBytes(d.gguf.size_bytes)}</p>`;
+        html += `<a class="dl" href="${d.gguf.download_url}">Download GGUF</a>`;
+      } else {
+        html += `<p class="empty">No GGUF for this profile yet.</p>`;
+      }
+      if (d.benchmark && d.benchmark.results) {
+        html += `<table><tr><th>Backend</th><th>tok/s</th><th>Load</th></tr>`;
+        for (const row of d.benchmark.results) {
+          html += `<tr><td>${row.backend_label}</td><td>${row.avg_tokens_per_sec}</td><td>${row.load_sec}s</td></tr>`;
+        }
+        html += `</table>`;
+        if (d.benchmark.summary && d.benchmark.summary.gpu_speedup) {
+          html += `<p>GPU speedup: <strong>${d.benchmark.summary.gpu_speedup}x</strong></p>`;
+        }
+      }
+      if (d.report_url) {
+        html += `<p><a href="/api/report?profile=${encodeURIComponent(profile)}">Download report.md</a></p>`;
+      }
+      artifactsEl.innerHTML = html || '<p class="empty">No artifacts.</p>';
+    }
+
+    function renderJobResult(artifacts) {
+      if (!artifacts) return;
+      jobResult.innerHTML = "<h2>Job result</h2>";
+      if (artifacts.gguf) {
+        jobResult.innerHTML += `<p>Model ready: <strong>${artifacts.gguf.name}</strong></p>`;
+        jobResult.innerHTML += `<a class="dl" href="${artifacts.gguf.download_url}">Download GGUF</a>`;
+      }
+      loadArtifacts();
+    }
+
+    function connectStream(jobId) {
+      if (eventSource) eventSource.close();
+      eventSource = new EventSource(`/api/jobs/${jobId}/stream`);
+      jobBadge.textContent = "Running…";
+      jobBadge.className = "badge";
+      startBtn.disabled = true;
+
+      eventSource.onmessage = (ev) => {
+        const data = JSON.parse(ev.data);
+        if (data.line) logLine(data.line);
+        if (data.done) {
+          eventSource.close();
+          eventSource = null;
+          startBtn.disabled = false;
+          jobBadge.textContent = data.status === "success" ? "Done" : "Failed";
+          jobBadge.className = "badge " + (data.status === "success" ? "ok" : "bad");
+          fetch(`/api/jobs/${jobId}`)
+            .then(r => r.json())
+            .then(j => renderJobResult(j.artifacts));
+          refreshHealth();
+        }
+      };
+      eventSource.onerror = () => {
+        jobBadge.textContent = "Stream ended";
+        startBtn.disabled = false;
+      };
+    }
+
+    startBtn.addEventListener("click", async () => {
+      clearLog();
+      const profile = profileSel.value;
+      const mode = selectedMode();
+      logLine(`Starting ${mode} for profile ${profile}…`);
+      try {
+        const r = await fetch("/api/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ profile, mode }),
+        });
+        const body = await r.json();
+        if (!r.ok) {
+          logLine("ERROR: " + (body.detail || r.statusText));
+          return;
+        }
+        logLine(`Job ${body.id} created`);
+        connectStream(body.id);
+      } catch (e) {
+        logLine("ERROR: " + e.message);
+      }
+    });
+
+    profileSel.addEventListener("change", () => {
+      updateProfileMeta();
+      loadArtifacts();
+    });
+
+    refreshHealth();
+    loadProfiles();
+    setInterval(refreshHealth, 15000);
+  </script>
+</body>
+</html>

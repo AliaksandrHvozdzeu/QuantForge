@@ -1,0 +1,9 @@
+{
+  "profile": "qwen2.5-coder-7b",
+  "model": "Qwen2.5-Coder-7B Q5_K_M",
+  "quantize": "Q5_K_M",
+  "results": [
+    {"backend": "cpu", "avg_tokens_per_sec": 10.0},
+    {"backend": "gpu", "avg_tokens_per_sec": 49.0}
+  ]
+}

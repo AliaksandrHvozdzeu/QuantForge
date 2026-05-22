@@ -1,0 +1,20 @@
+# Profile: Qwen2.5 Coder 7B Instruct @ Q5_K_M
+profile: qwen2.5-coder-7b
+
+model:
+  repo: Qwen/Qwen2.5-Coder-7B-Instruct
+  base_dir: qwen2.5-coder-7b-instruct-base
+  gguf_output: Qwen2.5-Coder-7B-Q5_K_M.gguf
+  display_name: Qwen2.5-Coder-7B
+
+quantize_type: Q5_K_M
+
+validation:
+  min_gguf_size_mb: 4500
+  smoke_test: true
+
+ollama:
+  model_name: qwen2.5-coder-q5
+
+api:
+  model_alias: qwen2.5-coder-q5

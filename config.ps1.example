@@ -1,0 +1,18 @@
+# Copy to config.ps1 for local overrides (config.ps1 is gitignored)
+# Secrets and machine-specific settings only — model settings live in config/*.yaml
+
+# Hugging Face token (only if model requires it, e.g. meta-llama)
+# $env:HF_TOKEN = "hf_your_token_here"
+
+# Active profile (see config/profiles/)
+# $env:QUANTFORGE_PROFILE = "qwen2.5-coder-7b"
+
+# Pipeline flags (optional)
+# $env:SKIP_DOCKER_BUILD = "1"   # reuse llama-quantizer image
+# $env:SKIP_BENCHMARK = "1"      # skip step 7 after validate
+# $env:FORCE_QUANTIZE = "1"      # re-quantize even if GGUF exists
+# $env:KEEP_BASE = "0"           # delete HF weights after quant (saves ~15 GB)
+
+# API (optional)
+# $env:API_PORT = "8000"
+# $env:QF_API_KEY = "your-secret"

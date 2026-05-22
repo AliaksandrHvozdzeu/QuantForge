@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantforge"
+version = "0.6.0"
+description = "Local LLM quantization and benchmarking toolkit for Windows"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+inference = [
+    "llama-cpp-python>=0.2.0",
+]
+api = [
+    "llama-cpp-python>=0.2.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "sse-starlette>=2.1.0",
+    "pydantic-settings>=2.0.0",
+]
+web = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "sse-starlette>=2.1.0",
+]
+dev = [
+    "ruff>=0.4.0",
+    "pytest>=8.0",
+]
+
+[project.scripts]
+quantforge = "quantforge.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"quantforge.web" = ["static/*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [".venv", "venv", "models", "build", "dist", "*.egg-info"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/quantforge/llama_env.py" = ["E402"]
+"src/llama_env.py" = ["E402", "F401"]
+"src/config_loader.py" = ["F401"]
+"src/qwen_chat.py" = ["F401"]

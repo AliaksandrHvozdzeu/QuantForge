@@ -1,0 +1,27 @@
+# OpenAI-compatible API (llama-cpp-python) for IDE integration
+# Build: docker build -f docker/Dockerfile.api -t quantforge-api:latest .
+
+ARG PYTHON_IMAGE=python:3.10-slim-bookworm
+FROM ${PYTHON_IMAGE}
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt docker/requirements-api.txt pyproject.toml README.md ./
+COPY src ./src
+COPY config ./config
+
+RUN pip install --no-cache-dir -r docker/requirements-api.txt \
+    && pip install --no-cache-dir -e .
+
+ENV QUANTFORGE_PROFILE=qwen2.5-coder-7b
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD curl -sf http://127.0.0.1:8000/v1/models || exit 1
+
+CMD ["python", "-m", "quantforge", "serve", "--host", "0.0.0.0", "--docker"]

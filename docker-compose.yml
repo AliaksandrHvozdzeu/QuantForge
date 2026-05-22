@@ -1,0 +1,28 @@
+# QuantForge OpenAI-compatible API for Void / Continue / other IDEs
+#
+# Start (CPU inside container):
+#   docker compose --profile api up --build
+#
+# For GPU on Windows, use native server instead:
+#   .\scripts\start_api.ps1
+
+services:
+  api:
+    profiles: ["api"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    image: quantforge-api:latest
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - ./models:/models:ro
+    environment:
+      QUANTFORGE_PROFILE: ${QUANTFORGE_PROFILE:-qwen2.5-coder-7b}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8000/v1/models"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
