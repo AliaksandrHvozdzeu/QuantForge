@@ -6,7 +6,7 @@
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=AliaksandrHvozdzeu_QuantForge&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=AliaksandrHvozdzeu_QuantForge)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=AliaksandrHvozdzeu_QuantForge&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=AliaksandrHvozdzeu_QuantForge)
 [![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=AliaksandrHvozdzeu_QuantForge&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=AliaksandrHvozdzeu_QuantForge)
-[![Release](https://img.shields.io/github/v/release/AliaksandrHvozdzeu/QuantForge?include_prereleases&label=release)](https://github.com/AliaksandrHvozdzeu/QuantForge/releases)
+[![Release](https://img.shields.io/github/v/tag/AliaksandrHvozdzeu/QuantForge?label=release&logo=github)](https://github.com/AliaksandrHvozdzeu/QuantForge/releases/latest)
 
 Automated download, **Q5_K_M** quantization, and benchmarking of **Qwen2.5-Coder-7B-Instruct** using Docker on Windows.
 
@@ -94,7 +94,7 @@ CI also runs **shellcheck**, **pip-audit**, and **Dependabot** (see `.github/`).
 
 On every **successful push to `main`/`master`**, CI job **Release** publishes a [GitHub Release](https://github.com/AliaksandrHvozdzeu/QuantForge/releases):
 
-- **Tag:** `v<VERSION>+build.<run>` (example: `v0.6.0+build.42`)
+- **Tag:** `v<VERSION>-build.<run>` (example: `v0.6.0-build.42`)
 - **Assets:** Python wheel (`.whl`) and source distribution (`.tar.gz`)
 
 Bump `VERSION` when you ship a new semver; build numbers increase automatically per CI run.
