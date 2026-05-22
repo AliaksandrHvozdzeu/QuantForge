@@ -10,8 +10,6 @@
 
 Automated download, **Q5_K_M** quantization, and benchmarking of **Qwen2.5-Coder-7B-Instruct** using Docker on Windows.
 
-**Full system guide:** [ARTICLE.md](ARTICLE.md) — architecture, pipeline steps, diagrams, and all components.
-
 ## CLI (P1)
 
 Install the package in your venv (done automatically by `run_optimization.ps1` / `test_models.ps1`):
