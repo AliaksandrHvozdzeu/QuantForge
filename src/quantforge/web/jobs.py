@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import os
 import subprocess
 import threading
@@ -15,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from ..config import PROJECT_ROOT, load_config, paths_from_config
-from ..safe_io import read_json, read_utf8
+from ..safe_io import read_json
 
 
 class JobMode(str, Enum):
