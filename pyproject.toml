@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=82.0.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 dependencies = [
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.3",
 ]
 
 [project.optional-dependencies]
@@ -19,19 +19,19 @@ inference = [
 ]
 api = [
     "llama-cpp-python>=0.2.0",
-    "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.32.0",
-    "sse-starlette>=2.1.0",
-    "pydantic-settings>=2.0.0",
+    "fastapi>=0.136.1",
+    "uvicorn[standard]>=0.47.0",
+    "sse-starlette>=3.4.4",
+    "pydantic-settings>=2.14.1",
 ]
 web = [
-    "fastapi>=0.115.0",
-    "uvicorn[standard]>=0.32.0",
-    "sse-starlette>=2.1.0",
+    "fastapi>=0.136.1",
+    "uvicorn[standard]>=0.47.0",
+    "sse-starlette>=3.4.4",
 ]
 dev = [
-    "ruff>=0.4.0",
-    "pytest>=8.0",
+    "ruff>=0.15.14",
+    "pytest>=9.0.3",
 ]
 
 [project.scripts]
