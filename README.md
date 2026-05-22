@@ -1,5 +1,9 @@
 # QuantForge - Qwen2.5-Coder-7B Quantization for Windows
 
+[![CI](https://github.com/AliaksandrHvozdzeu/QuantForge/actions/workflows/ci.yml/badge.svg)](https://github.com/AliaksandrHvozdzeu/QuantForge/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/github/actions/workflow/status/AliaksandrHvozdzeu/QuantForge/ci.yml?label=tests)](https://github.com/AliaksandrHvozdzeu/QuantForge/actions/workflows/ci.yml)
+[![Docker build](https://img.shields.io/github/actions/workflow/status/AliaksandrHvozdzeu/QuantForge/ci.yml?label=docker%20build&logo=docker)](https://github.com/AliaksandrHvozdzeu/QuantForge/actions/workflows/ci.yml)
+
 Automated download, **Q5_K_M** quantization, and benchmarking of **Qwen2.5-Coder-7B-Instruct** using Docker on Windows.
 
 **Full system guide:** [ARTICLE.md](ARTICLE.md) — architecture, pipeline steps, diagrams, and all components.
