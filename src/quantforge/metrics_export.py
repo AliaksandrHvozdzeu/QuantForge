@@ -8,11 +8,14 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from .config import PROJECT_ROOT
 from .metrics_store import load_history
+from .safe_io import resolve_under_root
 
 
 def export_history_csv(metrics_dir: Path, output: Path) -> Path:
     runs = load_history(metrics_dir)
+    output = resolve_under_root(output, PROJECT_ROOT)
     output.parent.mkdir(parents=True, exist_ok=True)
 
     with open(output, "w", newline="", encoding="utf-8") as f:
@@ -50,7 +53,8 @@ def export_history_csv(metrics_dir: Path, output: Path) -> Path:
 
 
 def load_baseline(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    safe = resolve_under_root(path, PROJECT_ROOT)
+    return json.loads(safe.read_text(encoding="utf-8"))
 
 
 def check_regression(

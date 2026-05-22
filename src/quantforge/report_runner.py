@@ -7,8 +7,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .config import load_config, paths_from_config
+from .config import PROJECT_ROOT, load_config, paths_from_config
 from .metrics_store import latest_path, load_history
+from .safe_io import resolve_under_root, write_utf8
 from .utils import format_size
 
 
@@ -101,7 +102,7 @@ def run_report(
     md = render_report_markdown(run, history)
 
     out = output or metrics_dir / "report.md"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(md, encoding="utf-8")
+    out = resolve_under_root(out, PROJECT_ROOT)
+    write_utf8(out, md, root=PROJECT_ROOT)
     print(f"Report: {out}")
     return 0

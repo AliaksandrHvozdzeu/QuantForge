@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .safe_io import write_json
+
 
 def file_sha256(path: Path, chunk_mb: int = 8) -> str:
     h = hashlib.sha256()
@@ -51,6 +53,5 @@ def write_manifest_entry(
     ]
     models_list.append(entry)
     manifest["models"] = models_list
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    write_json(manifest_path, manifest, root=project_root)
     return manifest_path

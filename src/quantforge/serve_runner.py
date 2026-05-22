@@ -10,7 +10,8 @@ from typing import Any
 
 import yaml
 
-from .config import load_config, paths_from_config
+from .config import PROJECT_ROOT, load_config, paths_from_config
+from .safe_io import write_utf8
 
 
 def build_server_config(
@@ -58,9 +59,8 @@ def build_server_config(
 
 
 def write_server_config(config: dict[str, Any], path: Path) -> Path:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
-    return path
+    text = yaml.safe_dump(config, sort_keys=False)
+    return write_utf8(path, text, root=PROJECT_ROOT)
 
 
 def run_serve(

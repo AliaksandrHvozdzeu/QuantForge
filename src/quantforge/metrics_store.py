@@ -7,6 +7,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .config import PROJECT_ROOT
+from .safe_io import append_jsonl_line, write_json
+
 
 def history_path(metrics_dir: Path) -> Path:
     return metrics_dir / "benchmark_history.jsonl"
@@ -19,17 +22,13 @@ def latest_path(metrics_dir: Path) -> Path:
 def append_run(metrics_dir: Path, payload: dict[str, Any]) -> Path:
     metrics_dir.mkdir(parents=True, exist_ok=True)
     hp = history_path(metrics_dir)
-    line = json.dumps(payload, ensure_ascii=False)
-    with open(hp, "a", encoding="utf-8") as f:
-        f.write(line + "\n")
-    return hp
+    return append_jsonl_line(hp, payload, root=PROJECT_ROOT)
 
 
 def save_latest(metrics_dir: Path, payload: dict[str, Any]) -> Path:
     metrics_dir.mkdir(parents=True, exist_ok=True)
     lp = latest_path(metrics_dir)
-    lp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-    return lp
+    return write_json(lp, payload, root=PROJECT_ROOT)
 
 
 def load_history(metrics_dir: Path, limit: int | None = None) -> list[dict[str, Any]]:
