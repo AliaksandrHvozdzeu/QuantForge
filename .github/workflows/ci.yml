@@ -156,17 +156,32 @@ jobs:
       - name: Compute release version
         id: ver
         run: |
-          BASE="$(tr -d ' \r\n' < VERSION)"
-          FULL="${BASE}-build.${GITHUB_RUN_NUMBER}"
-          TAG="v${FULL}"
+          set -euo pipefail
+          # VERSION in git must stay plain semver (0.6.0). Never commit build suffixes.
+          BASE="$(python - <<'PY'
+          import pathlib
+          import re
+          text = pathlib.Path("VERSION").read_text(encoding="utf-8", errors="replace")
+          m = re.search(r"(\d+\.\d+\.\d+)", text)
+          if not m:
+              raise SystemExit(f"Invalid VERSION file: {text!r}")
+          print(m.group(1))
+          PY
+          )"
+          BUILD="${GITHUB_RUN_NUMBER}"
+          TAG_VERSION="${BASE}-build.${BUILD}"
+          PEP440="${BASE}+build.${BUILD}"
+          TAG="v${TAG_VERSION}"
           echo "base=${BASE}" >> "$GITHUB_OUTPUT"
-          echo "full=${FULL}" >> "$GITHUB_OUTPUT"
+          echo "tag_version=${TAG_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "pep440=${PEP440}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
-          printf '%s\n' "${FULL}" > VERSION
-          echo "Release version: ${FULL} (tag ${TAG})"
+          echo "Release tag: ${TAG} | wheel version: ${PEP440}"
 
       - name: Build Python packages
         run: |
+          set -euo pipefail
+          printf '%s\n' "${{ steps.ver.outputs.pep440 }}" > VERSION
           pip install build
           python -m build
           ls -la dist/
@@ -175,17 +190,18 @@ jobs:
         run: |
           pip install dist/quantforge-*.whl
           python -m quantforge --version | tee /tmp/version.txt
-          grep -F "${{ steps.ver.outputs.full }}" /tmp/version.txt
+          grep -F "${{ steps.ver.outputs.pep440 }}" /tmp/version.txt
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           tag_name: ${{ steps.ver.outputs.tag }}
-          name: QuantForge ${{ steps.ver.outputs.full }}
+          name: QuantForge ${{ steps.ver.outputs.tag_version }}
           body: |
             Automated release from CI run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
 
-            - **Version:** `${{ steps.ver.outputs.full }}`
+            - **Git tag:** `${{ steps.ver.outputs.tag_version }}`
+            - **Python package:** `${{ steps.ver.outputs.pep440 }}`
             - **Base semver:** `${{ steps.ver.outputs.base }}`
             - **Commit:** ${{ github.sha }}
 

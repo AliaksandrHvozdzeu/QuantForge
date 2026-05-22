@@ -94,7 +94,8 @@ CI also runs **shellcheck**, **pip-audit**, and **Dependabot** (see `.github/`).
 
 On every **successful push to `main`/`master`**, CI job **Release** publishes a [GitHub Release](https://github.com/AliaksandrHvozdzeu/QuantForge/releases):
 
-- **Tag:** `v<VERSION>-build.<run>` (example: `v0.6.0-build.42`)
+- **Git tag:** `v<VERSION>-build.<run>` (example: `v0.6.0-build.42`)
+- **Wheel / CLI version:** `<VERSION>+build.<run>` (PEP 440, example: `0.6.0+build.42`)
 - **Assets:** Python wheel (`.whl`) and source distribution (`.tar.gz`)
 
 Bump `VERSION` when you ship a new semver; build numbers increase automatically per CI run.
