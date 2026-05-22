@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from ..config import PROJECT_ROOT, load_config, paths_from_config
-from ..safe_io import read_json
+from ..safe_io import MANIFEST_PARTS, read_json, read_json_at
 
 
 class JobMode(str, Enum):
@@ -257,8 +257,7 @@ def load_artifacts(profile: str) -> dict[str, Any]:
             "download_url": f"/api/download/{gguf.name}",
         }
 
-    manifest_path = paths["models"] / "manifest.json"
-    manifest_data = read_json(manifest_path, root=paths["root"], default=None)
+    manifest_data = read_json_at(paths["root"], *MANIFEST_PARTS, default=None)
     if manifest_data:
         result["manifest"] = manifest_data
 

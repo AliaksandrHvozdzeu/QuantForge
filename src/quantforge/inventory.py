@@ -36,10 +36,12 @@ def run_inventory(profile: str | None = None) -> int:
             size = sum(f.stat().st_size for f in d.rglob("*") if f.is_file())
             print(f"  {d.name:<40} {format_size(size)}")
 
-    manifest_path = models_dir / "manifest.json"
-    if manifest_path.exists():
-        print(f"\nManifest ({manifest_path}):")
-        for m in read_manifest(manifest_path, root=PROJECT_ROOT).get("models", []):
+    from .manifest import manifest_path
+
+    mp = manifest_path(PROJECT_ROOT)
+    if mp.exists():
+        print(f"\nManifest ({mp}):")
+        for m in read_manifest(root=PROJECT_ROOT).get("models", []):
             print(f"  {m.get('gguf_file')}  sha256={m.get('sha256', '')[:16]}...")
 
     print(f"\nProfiles: {', '.join(list_profiles())}")

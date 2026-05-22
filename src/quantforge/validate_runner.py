@@ -97,9 +97,9 @@ def run_validate(
     print(f"OK: {gguf_path.stat().st_size / (1024**2):.2f} MB")
     if write_manifest:
         print("SHA256...")
-        digest = file_sha256(gguf_path)
-        mp = paths["models"] / "manifest.json"
-        write_manifest_entry(mp, config, gguf_path, digest, paths["root"])
+        root = paths["root"]
+        digest = file_sha256(gguf_path, root=root)
+        mp = write_manifest_entry(config, gguf_path, digest, root)
         print(f"Manifest: {mp}")
     print("Validation passed.")
     return 0

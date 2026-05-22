@@ -54,11 +54,19 @@ def test_read_json_blocks_traversal(tmp_path: Path):
         read_json(outside, root=root)
 
 
+def test_path_from_root_rejects_dotdot(tmp_path: Path):
+    root = tmp_path / "project"
+    root.mkdir()
+    with pytest.raises(ValueError, match="Unsafe path segment"):
+        from quantforge.safe_io import path_from_root
+
+        path_from_root(root, "..", "etc")
+
+
 def test_read_manifest_under_root(tmp_path: Path):
     root = tmp_path / "project"
     models = root / "models"
     models.mkdir(parents=True)
-    manifest = models / "manifest.json"
-    write_json(manifest, {"models": [{"gguf_file": "a.gguf"}]}, root=root)
-    data = read_manifest(manifest, root=root)
+    write_json(models / "manifest.json", {"models": [{"gguf_file": "a.gguf"}]}, root=root)
+    data = read_manifest(root=root)
     assert len(data["models"]) == 1
