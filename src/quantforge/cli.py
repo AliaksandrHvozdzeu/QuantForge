@@ -83,7 +83,9 @@ def main(argv: list[str] | None = None) -> int:
 
     # report
     p_rep = sub.add_parser("report", parents=[common], help="Generate Markdown benchmark report")
-    p_rep.add_argument("-o", "--output", default=None, help="Output path (default: metrics/report.md)")
+    p_rep.add_argument(
+        "-o", "--output", default=None, help="Output path (default: metrics/report.md)"
+    )
 
     # metrics
     p_met = sub.add_parser("metrics", parents=[common], help="Benchmark metrics")

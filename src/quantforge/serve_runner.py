@@ -116,8 +116,7 @@ def run_serve(
         from llama_cpp.server.__main__ import main as server_main
     except ImportError as exc:
         print(
-            "ERROR: API dependencies missing. Install with:\n"
-            "  pip install -e \".[api]\"",
+            'ERROR: API dependencies missing. Install with:\n  pip install -e ".[api]"',
             file=sys.stderr,
         )
         print(f"  ({exc})", file=sys.stderr)

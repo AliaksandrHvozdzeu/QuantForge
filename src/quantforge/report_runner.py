@@ -40,7 +40,15 @@ def render_report_markdown(run: dict[str, Any], history: list[dict[str, Any]]) -
     if size:
         lines.append(f"| GGUF size | {format_size(int(size))} |")
 
-    lines.extend(["", "## Results", "", "| Backend | tok/s | Load (s) | Gen (s) |", "|---------|-------|----------|---------|"])
+    lines.extend(
+        [
+            "",
+            "## Results",
+            "",
+            "| Backend | tok/s | Load (s) | Gen (s) |",
+            "|---------|-------|----------|---------|",
+        ]
+    )
     for r in run.get("results", []):
         lines.append(
             f"| {r.get('backend_label', '?')} "
@@ -54,7 +62,15 @@ def render_report_markdown(run: dict[str, Any], history: list[dict[str, Any]]) -
         lines.extend(["", f"**GPU speedup:** {speedup}x vs CPU", ""])
 
     if len(history) > 1:
-        lines.extend(["", "## History (last runs)", "", "| Date | Profile | Backend | tok/s |", "|------|---------|---------|-------|"])
+        lines.extend(
+            [
+                "",
+                "## History (last runs)",
+                "",
+                "| Date | Profile | Backend | tok/s |",
+                "|------|---------|---------|-------|",
+            ]
+        )
         for h in history[-5:]:
             ts = _format_ts(h.get("timestamp", ""))
             prof = h.get("profile", "")

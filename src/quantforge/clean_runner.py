@@ -50,9 +50,7 @@ def collect_clean_items(
             if not d.is_dir() or d.name.startswith("."):
                 continue
             if d.name != active_base:
-                items.append(
-                    CleanItem(d, _dir_size(d), f"base weights (active: {active_base})")
-                )
+                items.append(CleanItem(d, _dir_size(d), f"base weights (active: {active_base})"))
 
     if logs_keep_days >= 0 and logs_dir.is_dir():
         cutoff = time.time() - logs_keep_days * 86400

@@ -16,8 +16,7 @@ def run_web(
         import uvicorn
     except ImportError:
         print(
-            "ERROR: Web dependencies missing. Install with:\n"
-            '  pip install -e ".[web]"',
+            'ERROR: Web dependencies missing. Install with:\n  pip install -e ".[web]"',
             file=sys.stderr,
         )
         return 1
