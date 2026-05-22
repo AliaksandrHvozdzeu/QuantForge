@@ -138,3 +138,66 @@ jobs:
             test -x /workspace/llama.cpp/llama-bench
             python3 -c "import huggingface_hub, transformers, torch; print(\"python deps OK\")"
           '
+
+  release:
+    name: Release
+    needs: [lint, test-package, shellcheck, docker]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compute release version
+        id: ver
+        run: |
+          BASE="$(tr -d ' \r\n' < VERSION)"
+          FULL="${BASE}+build.${GITHUB_RUN_NUMBER}"
+          TAG="v${FULL}"
+          echo "base=${BASE}" >> "$GITHUB_OUTPUT"
+          echo "full=${FULL}" >> "$GITHUB_OUTPUT"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "${FULL}" > VERSION
+          echo "Release version: ${FULL} (tag ${TAG})"
+
+      - name: Build Python packages
+        run: |
+          pip install build
+          python -m build
+          ls -la dist/
+
+      - name: Verify wheel version
+        run: |
+          pip install dist/quantforge-*.whl
+          python -m quantforge --version | tee /tmp/version.txt
+          grep -F "${{ steps.ver.outputs.full }}" /tmp/version.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: QuantForge ${{ steps.ver.outputs.full }}
+          body: |
+            Automated release from CI run [#${{ github.run_number }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+            - **Version:** `${{ steps.ver.outputs.full }}`
+            - **Base semver:** `${{ steps.ver.outputs.base }}`
+            - **Commit:** ${{ github.sha }}
+
+            ### Install
+
+            Download **`quantforge-*.whl`** or **`*.tar.gz`** from the release assets and install:
+
+            ```bash
+            pip install quantforge-*.whl
+            ```
+
+            Bump the base version in [`VERSION`](https://github.com/${{ github.repository }}/blob/main/VERSION) when shipping a new semver (e.g. `0.7.0`); each green `main` build publishes `VERSION+build.<run>`.
+          files: dist/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true

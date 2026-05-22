@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "quantforge"
-version = "0.6.0"
+dynamic = ["version"]
 description = "Local LLM quantization and benchmarking toolkit for Windows"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -38,6 +38,9 @@ dev = [
 
 [project.scripts]
 quantforge = "quantforge.cli:main"
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
