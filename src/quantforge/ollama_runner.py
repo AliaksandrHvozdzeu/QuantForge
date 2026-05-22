@@ -61,7 +61,12 @@ def ollama_model_exists(name: str) -> bool:
         return False
 
 
-def run_ollama_verify(profile: str | None = None, *, require_model: bool = False) -> int:
+def run_ollama_verify(
+    profile: str | None = None,
+    *,
+    require_model: bool = False,
+    require_gguf: bool = False,
+) -> int:
     config = load_config(profile)
     model_name = config.get("ollama", {}).get("model_name", "")
     mf = modelfile_path(config)
@@ -84,8 +89,11 @@ def run_ollama_verify(profile: str | None = None, *, require_model: bool = False
         print(f"  OK: GGUF ({gguf.name})")
     else:
         msg = f"GGUF not found: {gguf}"
-        errors.append(msg)
-        print(f"  FAIL: {msg}")
+        if require_gguf:
+            errors.append(msg)
+            print(f"  FAIL: {msg}")
+        else:
+            print(f"  WARN: {msg}")
 
     if not ollama_available():
         print("  WARN: ollama CLI not in PATH")

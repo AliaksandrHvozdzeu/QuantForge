@@ -73,7 +73,7 @@ jobs:
       - name: Unit tests
         run: pytest tests/ -q
 
-      - name: Validate Ollama Modelfile
+      - name: Validate Ollama Modelfile (GGUF optional in CI)
         run: python -m quantforge ollama verify
 
   security:

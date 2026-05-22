@@ -129,6 +129,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Fail if ollama model is not registered",
     )
+    p_oll_v.add_argument(
+        "--require-gguf",
+        action="store_true",
+        help="Fail if quantized GGUF file is missing (local preflight)",
+    )
 
     args = parser.parse_args(argv)
     profile = args.profile
@@ -229,7 +234,11 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.command == "ollama":
             if args.ollama_cmd == "verify":
-                return run_ollama_verify(profile, require_model=args.require_model)
+                return run_ollama_verify(
+                    profile,
+                    require_model=args.require_model,
+                    require_gguf=args.require_gguf,
+                )
 
     except KeyboardInterrupt:
         print("\nInterrupted.", file=sys.stderr)
