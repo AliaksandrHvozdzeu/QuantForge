@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import hashlib
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .safe_io import write_json
+from .safe_io import read_json, resolve_under_root, write_json
 
 
 def file_sha256(path: Path, chunk_mb: int = 8) -> str:
@@ -19,13 +18,14 @@ def file_sha256(path: Path, chunk_mb: int = 8) -> str:
     return h.hexdigest()
 
 
-def read_manifest(path: Path) -> dict[str, Any]:
-    if not path.exists():
+def read_manifest(path: Path, *, root: Path) -> dict[str, Any]:
+    """Load manifest JSON; *path* must resolve under *root* (blocks path injection)."""
+    data = read_json(path, root=root, default={"models": []})
+    if not isinstance(data, dict):
         return {"models": []}
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return {"models": []}
+    if "models" not in data:
+        data["models"] = []
+    return data
 
 
 def write_manifest_entry(
@@ -47,11 +47,12 @@ def write_manifest_entry(
         "sha256": sha256,
     }
 
-    manifest = read_manifest(manifest_path)
+    safe_manifest = resolve_under_root(manifest_path, project_root)
+    manifest = read_manifest(safe_manifest, root=project_root)
     models_list = [
         m for m in manifest.get("models", []) if m.get("gguf_file") != entry["gguf_file"]
     ]
     models_list.append(entry)
     manifest["models"] = models_list
-    write_json(manifest_path, manifest, root=project_root)
-    return manifest_path
+    write_json(safe_manifest, manifest, root=project_root)
+    return safe_manifest

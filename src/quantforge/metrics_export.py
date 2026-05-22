@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import csv
-import json
 import sys
 from pathlib import Path
 from typing import Any
 
 from .config import PROJECT_ROOT
 from .metrics_store import load_history
-from .safe_io import resolve_under_root
+from .safe_io import read_json, resolve_under_root
 
 
 def export_history_csv(metrics_dir: Path, output: Path) -> Path:
@@ -53,8 +52,8 @@ def export_history_csv(metrics_dir: Path, output: Path) -> Path:
 
 
 def load_baseline(path: Path) -> dict[str, Any]:
-    safe = resolve_under_root(path, PROJECT_ROOT)
-    return json.loads(safe.read_text(encoding="utf-8"))
+    data = read_json(path, root=PROJECT_ROOT, default={})
+    return data if isinstance(data, dict) else {}
 
 
 def check_regression(
@@ -109,7 +108,7 @@ def run_regression_check(
         print(f"Baseline not found: {baseline_path}", file=sys.stderr)
         return 1
 
-    current = json.loads(latest.read_text(encoding="utf-8"))
+    current = read_json(latest, root=PROJECT_ROOT)
     baseline = load_baseline(baseline_path)
     failures = check_regression(current, baseline, tolerance)
 

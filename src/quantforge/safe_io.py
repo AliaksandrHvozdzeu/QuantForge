@@ -7,6 +7,23 @@ from pathlib import Path
 from typing import Any
 
 
+def read_utf8(path: Path, *, root: Path) -> str:
+    """Read UTF-8 text only if *path* is under *root*."""
+    safe = resolve_under_root(path, root)
+    return safe.read_text(encoding="utf-8")
+
+
+def read_json(path: Path, *, root: Path, default: Any | None = None) -> Any:
+    """Read JSON only if *path* is under *root*."""
+    safe = resolve_under_root(path, root)
+    if not safe.exists():
+        return {} if default is None else default
+    try:
+        return json.loads(safe.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {} if default is None else default
+
+
 def resolve_under_root(path: Path, root: Path) -> Path:
     """Resolve *path* and ensure it stays under *root* (blocks ``../`` escapes)."""
     root_resolved = root.resolve()

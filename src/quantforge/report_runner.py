@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from .config import PROJECT_ROOT, load_config, paths_from_config
 from .metrics_store import latest_path, load_history
-from .safe_io import resolve_under_root, write_utf8
+from .safe_io import read_json, resolve_under_root, write_utf8
 from .utils import format_size
 
 
@@ -97,7 +96,7 @@ def run_report(
         print(f"No benchmark data: {latest}")
         return 1
 
-    run = json.loads(latest.read_text(encoding="utf-8"))
+    run = read_json(latest, root=PROJECT_ROOT)
     history = load_history(metrics_dir)
     md = render_report_markdown(run, history)
 

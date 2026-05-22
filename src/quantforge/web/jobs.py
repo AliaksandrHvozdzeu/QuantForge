@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from ..config import PROJECT_ROOT, load_config, paths_from_config
+from ..safe_io import read_json, read_utf8
 
 
 class JobMode(str, Enum):
@@ -258,18 +259,14 @@ def load_artifacts(profile: str) -> dict[str, Any]:
         }
 
     manifest_path = paths["models"] / "manifest.json"
-    if manifest_path.exists():
-        try:
-            result["manifest"] = json.loads(manifest_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            pass
+    manifest_data = read_json(manifest_path, root=paths["root"], default=None)
+    if manifest_data:
+        result["manifest"] = manifest_data
 
     bench_path = metrics_dir / "benchmark_results.json"
-    if bench_path.exists():
-        try:
-            result["benchmark"] = json.loads(bench_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            pass
+    bench_data = read_json(bench_path, root=paths["root"], default=None)
+    if bench_data:
+        result["benchmark"] = bench_data
 
     report_path = metrics_dir / "report.md"
     if report_path.exists():

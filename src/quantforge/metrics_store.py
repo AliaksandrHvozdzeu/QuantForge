@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .config import PROJECT_ROOT
-from .safe_io import append_jsonl_line, write_json
+from .safe_io import append_jsonl_line, read_utf8, resolve_under_root, write_json
 
 
 def history_path(metrics_dir: Path) -> Path:
@@ -32,11 +32,11 @@ def save_latest(metrics_dir: Path, payload: dict[str, Any]) -> Path:
 
 
 def load_history(metrics_dir: Path, limit: int | None = None) -> list[dict[str, Any]]:
-    hp = history_path(metrics_dir)
+    hp = resolve_under_root(history_path(metrics_dir), PROJECT_ROOT)
     if not hp.exists():
         return []
     runs = []
-    for line in hp.read_text(encoding="utf-8").splitlines():
+    for line in read_utf8(hp, root=PROJECT_ROOT).splitlines():
         line = line.strip()
         if not line:
             continue
